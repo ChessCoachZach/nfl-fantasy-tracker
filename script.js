@@ -1,11 +1,11 @@
 // Players and their drafted teams
 const players = {
-  "Rachel": ["Eagles", "Texans", "Buccaneers", "Bears", "Seahawks"],
+  "Mom": ["Eagles", "Texans", "Buccaneers", "Bears", "Seahawks"],
   "Dad": ["Ravens", "Packers", "Broncos", "Patriots", "Jets"],
   "Gma": ["Chiefs", "Steelers", "Vikings", "Raiders", "Falcons"],
-  "Frank": ["Bills", "Chargers", "Colts", "Browns", "Giants"],
+  "Pepaw": ["Bills", "Chargers", "Colts", "Browns", "Giants"],
   "Zach": ["Lions", "Rams", "49ers", "Cowboys", "Cardinals"],
-  "Will": ["Bengals", "Commanders", "Dolphins", "Jaguars", "Titans"]
+  "William": ["Bengals", "Commanders", "Dolphins", "Jaguars", "Titans"]
 };
 
 // Replace with your published Google Sheet CSV link
