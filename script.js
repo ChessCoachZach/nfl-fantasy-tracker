@@ -13,27 +13,33 @@ const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQL8zOR1rwqjI
 
 // Load scores from Google Sheets CSV
 async function loadScores() {
-  const res = await fetch(SHEET_URL);
-  const text = await res.text();
-  const scores = parseCSV(text);
-  buildLeaderboard(scores);
+  try {
+    const res = await fetch(SHEET_URL);
+    const text = await res.text();
+    const scores = parseCSV(text);
+    buildLeaderboard(scores);
 
-  // Update last updated timestamp
-  const now = new Date();
-  document.getElementById("last-updated").textContent =
-    "Last updated: " + now.toLocaleString();
+    // Update last updated timestamp
+    const now = new Date();
+    document.getElementById("last-updated").textContent =
+      "Last updated: " + now.toLocaleString();
+  } catch (err) {
+    console.error("Error loading scores:", err);
+  }
 }
 
-// Convert CSV to { team: { points, wins, losses } } object
+// Convert CSV to { team: { points, wins, losses, ties } } object
 function parseCSV(csvText) {
   const lines = csvText.trim().split("\n");
   const scores = {};
   lines.slice(1).forEach(line => { // skip header
-    const [team, points, wins, losses] = line.split(",");
+    const [team, points, wins, losses, ties] = line.split(",");
+    if (!team || !team.trim()) return; // skip empty lines
     scores[team.trim()] = {
       points: parseFloat(points) || 0,
       wins: parseInt(wins) || 0,
-      losses: parseInt(losses) || 0
+      losses: parseInt(losses) || 0,
+      ties: parseInt(ties) || 0
     };
   });
   return scores;
@@ -49,13 +55,13 @@ function buildLeaderboard(scores) {
     let totalLosses = 0;
 
     const teamScores = teams.map(team => {
-      const t = scores[team] || { points: 0, wins: 0, losses: 0 };
-      total += t.points;
+      const t = scores[team] || { points: 0, wins: 0, losses: 0, ties: 0 };
+      total += t.points + 0.5 * t.ties; // include ties
       totalWins += t.wins;
       totalLosses += t.losses;
       return {
         name: team,
-        points: t.points,
+        points: t.points + 0.5 * t.ties, // include ties
         wins: t.wins,
         losses: t.losses
       };
@@ -88,7 +94,7 @@ function buildLeaderboard(scores) {
     // Show player total points and combined record
     const header = document.createElement("div");
     header.className = "player-header";
-    header.innerHTML = `<span>#${index + 1} ${entry.player}</span><span>${entry.total} pts • Total Record: ${entry.totalWins}-${entry.totalLosses}</span>`;
+    header.innerHTML = `<span>#${index + 1} ${entry.player}</span><span>${entry.total.toFixed(1)} pts • Total Record: ${entry.totalWins}-${entry.totalLosses}</span>`;
     card.appendChild(header);
 
     // List each team with points and record
@@ -96,7 +102,7 @@ function buildLeaderboard(scores) {
     list.className = "team-list";
     entry.teamScores.forEach(t => {
       const li = document.createElement("li");
-      li.innerHTML = `<span>${t.name} (${t.wins}-${t.losses})</span><span>${t.points}</span>`;
+      li.innerHTML = `<span>${t.name} (${t.wins}-${t.losses})</span><span>${t.points.toFixed(1)}</span>`;
       list.appendChild(li);
     });
 
