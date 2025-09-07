@@ -53,17 +53,20 @@ function buildLeaderboard(scores) {
     let total = 0;
     let totalWins = 0;
     let totalLosses = 0;
+    let totalTies = 0;
 
     const teamScores = teams.map(team => {
       const t = scores[team] || { points: 0, wins: 0, losses: 0, ties: 0 };
-      total += t.points + 0.5 * t.ties; // include ties
+      total += t.points + 0.5 * t.ties;
       totalWins += t.wins;
       totalLosses += t.losses;
+      totalTies += t.ties;
       return {
         name: team,
-        points: t.points + 0.5 * t.ties, // include ties
+        points: t.points + 0.5 * t.ties,
         wins: t.wins,
-        losses: t.losses
+        losses: t.losses,
+        ties: t.ties
       };
     });
 
@@ -72,6 +75,7 @@ function buildLeaderboard(scores) {
       total,
       totalWins,
       totalLosses,
+      totalTies,
       teamScores
     });
   }
@@ -91,10 +95,11 @@ function buildLeaderboard(scores) {
       card.classList.add("top-player");
     }
 
-    // Show player total points and combined record
+    // Show player total points and combined record (Wins-Losses-Ties)
     const header = document.createElement("div");
     header.className = "player-header";
-    header.innerHTML = `<span>#${index + 1} ${entry.player}</span><span>${entry.total.toFixed(1)} pts • Total Record: ${entry.totalWins}-${entry.totalLosses}</span>`;
+    header.innerHTML = `<span>#${index + 1} ${entry.player}</span>
+                        <span>${entry.total.toFixed(1)} pts • Total Record: ${entry.totalWins}-${entry.totalLosses}-${entry.totalTies}</span>`;
     card.appendChild(header);
 
     // List each team with points and record
@@ -102,7 +107,9 @@ function buildLeaderboard(scores) {
     list.className = "team-list";
     entry.teamScores.forEach(t => {
       const li = document.createElement("li");
-      li.innerHTML = `<span>${t.name} (${t.wins}-${t.losses})</span><span>${t.points.toFixed(1)}</span>`;
+      li.innerHTML = `<span class="team-name">${t.name}</span>
+                      <span class="team-record">(${t.wins}-${t.losses}${t.ties > 0 ? '-' + t.ties : ''})</span>
+                      <span class="team-points">${t.points.toFixed(1)}</span>`;
       list.appendChild(li);
     });
 
