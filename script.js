@@ -33,7 +33,7 @@ function parseCSV(csvText) {
   const lines = csvText.trim().split("\n");
   const scores = {};
   lines.slice(1).forEach(line => { // skip header
-    const [team, points, wins, losses, ties] = line.split(",");
+    const [team, wins, losses, ties, points] = line.split(",");
     if (!team || !team.trim()) return; // skip empty lines
     scores[team.trim()] = {
       points: parseFloat(points) || 0,
@@ -57,7 +57,7 @@ function buildLeaderboard(scores) {
 
     const teamScores = teams.map(team => {
       const t = scores[team] || { points: 0, wins: 0, losses: 0, ties: 0 };
-      total += t.points + 0.5 * t.ties;
+      total += t.points + 0.5 * t.ties; // include ties in points
       totalWins += t.wins;
       totalLosses += t.losses;
       totalTies += t.ties;
@@ -95,7 +95,7 @@ function buildLeaderboard(scores) {
       card.classList.add("top-player");
     }
 
-    // Show player total points and combined record (Wins-Losses-Ties)
+    // Player total points and combined record (Wins-Losses-Ties)
     const header = document.createElement("div");
     header.className = "player-header";
     header.innerHTML = `<span>#${index + 1} ${entry.player}</span>
@@ -125,3 +125,8 @@ loadScores();
 setInterval(() => {
   loadScores();
 }, 300000);
+
+// Manual refresh button
+document.getElementById("refresh-btn")?.addEventListener("click", () => {
+  loadScores();
+});
