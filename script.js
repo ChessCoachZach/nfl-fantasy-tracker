@@ -24,13 +24,17 @@ async function loadScores() {
     "Last updated: " + now.toLocaleString();
 }
 
-// Convert CSV to { team: points } object
+// Convert CSV to { team: { points, wins, losses } } object
 function parseCSV(csvText) {
   const lines = csvText.trim().split("\n");
   const scores = {};
   lines.slice(1).forEach(line => { // skip header
-    const [team, points] = line.split(",");
-    scores[team.trim()] = parseFloat(points) || 0;
+    const [team, points, wins, losses] = line.split(",");
+    scores[team.trim()] = {
+      points: parseFloat(points) || 0,
+      wins: parseInt(wins) || 0,
+      losses: parseInt(losses) || 0
+    };
   });
   return scores;
 }
@@ -41,12 +45,29 @@ function buildLeaderboard(scores) {
 
   for (const [player, teams] of Object.entries(players)) {
     let total = 0;
+    let totalWins = 0;
+    let totalLosses = 0;
+
     const teamScores = teams.map(team => {
-      const pts = scores[team] || 0;
-      total += pts;
-      return { name: team, points: pts };
+      const t = scores[team] || { points: 0, wins: 0, losses: 0 };
+      total += t.points;
+      totalWins += t.wins;
+      totalLosses += t.losses;
+      return {
+        name: team,
+        points: t.points,
+        wins: t.wins,
+        losses: t.losses
+      };
     });
-    leaderboard.push({ player, total, teamScores });
+
+    leaderboard.push({
+      player,
+      total,
+      totalWins,
+      totalLosses,
+      teamScores
+    });
   }
 
   // Sort by total points, descending
@@ -64,16 +85,18 @@ function buildLeaderboard(scores) {
       card.classList.add("top-player");
     }
 
+    // Show player total points and combined record
     const header = document.createElement("div");
     header.className = "player-header";
-    header.innerHTML = `<span>#${index + 1} ${entry.player}</span><span>${entry.total} pts</span>`;
+    header.innerHTML = `<span>#${index + 1} ${entry.player}</span><span>${entry.total} pts • Total Record: ${entry.totalWins}-${entry.totalLosses}</span>`;
     card.appendChild(header);
 
+    // List each team with points and record
     const list = document.createElement("ul");
     list.className = "team-list";
     entry.teamScores.forEach(t => {
       const li = document.createElement("li");
-      li.innerHTML = `<span>${t.name}</span><span>${t.points}</span>`;
+      li.innerHTML = `<span>${t.name} (${t.wins}-${t.losses})</span><span>${t.points}</span>`;
       list.appendChild(li);
     });
 
