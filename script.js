@@ -8,7 +8,7 @@ const players = {
 };
 
 // Replace this with your Google Sheet CSV link
-const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/YOUR_SHEET_ID/pub?output=csv";
+const SHEET_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQL8zOR1rwqjIyqPnuUe2swJ6_GokdRSuboJzSFVzvWC-JKnvtIIpNHMD6ccZrcGs7DTohpm31BOE0n/pub?output=csv";
 
 async function loadScores() {
   const res = await fetch(SHEET_URL);
