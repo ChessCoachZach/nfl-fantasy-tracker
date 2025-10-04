@@ -82,16 +82,26 @@ main {
   font-weight: 500;
 }
 
+/* ** NEW & MODIFIED STYLES ** */
+.team-stats {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
 .team-record {
   font-size: 0.9rem;
   color: #555;
-  margin-left: 0.25rem;
+  margin-left: 0;
+  text-align: right;
 }
 
 .team-points {
   font-weight: bold;
   color: #222;
-  margin-left: 0.25rem;
+  margin-left: 0;
+  text-align: right;
+  width: 40px; /* Aligns the points column neatly */
 }
 
 #refresh-btn {
@@ -125,8 +135,6 @@ footer {
     gap: 0.25rem;
   }
   .team-list li {
-    flex-direction: column;
-    align-items: flex-start;
     gap: 0.1rem;
   }
 }
