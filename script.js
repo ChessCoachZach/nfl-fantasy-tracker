@@ -33,7 +33,7 @@ function parseCSV(csvText) {
   const lines = csvText.trim().split("\n");
   const scores = {};
   lines.slice(1).forEach(line => { // skip header
-    const [team, wins, losses, ties] = line.split(","); // We no longer need the 'points' column
+    const [team, wins, losses, ties] = line.split(",");
     if (!team || !team.trim()) return; // skip empty lines
     scores[team.trim()] = {
       wins: parseInt(wins) || 0,
@@ -56,12 +56,7 @@ function buildLeaderboard(scores) {
 
     const teamScores = teams.map(team => {
       const t = scores[team] || { wins: 0, losses: 0, ties: 0 };
-      
-      // =================================================================
-      // THIS IS THE CORRECTED CALCULATION
-      // Score is now strictly calculated from wins (1 pt) and ties (0.5 pt)
       const teamScore = t.wins + (0.5 * t.ties);
-      // =================================================================
       
       total += teamScore;
       totalWins += t.wins;
@@ -70,7 +65,7 @@ function buildLeaderboard(scores) {
 
       return {
         name: team,
-        points: teamScore, // Use the correctly calculated score
+        points: teamScore,
         wins: t.wins,
         losses: t.losses,
         ties: t.ties
@@ -87,7 +82,6 @@ function buildLeaderboard(scores) {
     });
   }
 
-  // Sort by total points, descending
   leaderboard.sort((a, b) => b.total - a.total);
 
   const container = document.getElementById("players");
@@ -135,11 +129,40 @@ function buildLeaderboard(scores) {
 loadScores();
 
 // Auto-refresh every 5 minutes
-setInterval(() => {
-  loadScores();
-}, 300000);
+setInterval(loadScores, 300000);
 
 // Manual refresh button
-document.getElementById("refresh-btn")?.addEventListener("click", () => {
-  loadScores();
+document.getElementById("refresh-btn")?.addEventListener("click", loadScores);
+
+
+// ========== THEME SWITCHER LOGIC ==========
+const themeToggle = document.getElementById('theme-toggle');
+const body = document.body;
+
+// Function to apply the saved theme
+function applyTheme(theme) {
+  if (theme === 'light') {
+    body.classList.add('light-mode');
+    themeToggle.checked = true;
+  } else {
+    body.classList.remove('light-mode');
+    themeToggle.checked = false;
+  }
+}
+
+// Check for a saved theme in localStorage
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+  applyTheme(savedTheme);
+}
+
+// Event listener for the toggle switch
+themeToggle.addEventListener('change', () => {
+  if (themeToggle.checked) {
+    localStorage.setItem('theme', 'light');
+    applyTheme('light');
+  } else {
+    localStorage.setItem('theme', 'dark');
+    applyTheme('dark');
+  }
 });
