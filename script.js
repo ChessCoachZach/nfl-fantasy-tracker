@@ -28,15 +28,14 @@ async function loadScores() {
   }
 }
 
-// Convert CSV to { team: { points, wins, losses, ties } } object
+// Convert CSV to { team: { wins, losses, ties } } object
 function parseCSV(csvText) {
   const lines = csvText.trim().split("\n");
   const scores = {};
   lines.slice(1).forEach(line => { // skip header
-    const [team, wins, losses, ties, points] = line.split(",");
+    const [team, wins, losses, ties] = line.split(","); // We no longer need the 'points' column
     if (!team || !team.trim()) return; // skip empty lines
     scores[team.trim()] = {
-      points: parseFloat(points) || 0, // This is now ignored in the calculation
       wins: parseInt(wins) || 0,
       losses: parseInt(losses) || 0,
       ties: parseInt(ties) || 0
@@ -56,20 +55,22 @@ function buildLeaderboard(scores) {
     let totalTies = 0;
 
     const teamScores = teams.map(team => {
-      const t = scores[team] || { points: 0, wins: 0, losses: 0, ties: 0 };
+      const t = scores[team] || { wins: 0, losses: 0, ties: 0 };
       
-      // **FIXED CALCULATION LOGIC**
-      // The score is now calculated ONLY from wins and ties.
+      // =================================================================
+      // THIS IS THE CORRECTED CALCULATION
+      // Score is now strictly calculated from wins (1 pt) and ties (0.5 pt)
       const teamScore = t.wins + (0.5 * t.ties);
+      // =================================================================
       
-      total += teamScore; // Add the correct score to the player's total
+      total += teamScore;
       totalWins += t.wins;
       totalLosses += t.losses;
       totalTies += t.ties;
 
       return {
         name: team,
-        points: teamScore, // Use the correctly calculated score for display
+        points: teamScore, // Use the correctly calculated score
         wins: t.wins,
         losses: t.losses,
         ties: t.ties
@@ -92,12 +93,10 @@ function buildLeaderboard(scores) {
   const container = document.getElementById("players");
   container.innerHTML = "";
   
-  // Logic to handle tied ranks
   let lastScore = -1;
   let currentRank = 0;
 
   leaderboard.forEach((entry, index) => {
-    // If current player's score is different from the previous, update the rank
     if (entry.total !== lastScore) {
       currentRank = index + 1;
     }
@@ -105,8 +104,6 @@ function buildLeaderboard(scores) {
 
     const card = document.createElement("div");
     card.className = "player-card";
-
-    // Highlight all players tied for first place
     if(currentRank === 1) {
       card.classList.add("top-player");
     }
