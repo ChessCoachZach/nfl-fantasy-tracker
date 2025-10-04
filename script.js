@@ -117,9 +117,12 @@ function buildLeaderboard(scores) {
     list.className = "team-list";
     entry.teamScores.sort((a, b) => b.points - a.points).forEach(t => {
       const li = document.createElement("li");
+      // **MODIFIED PART**
       li.innerHTML = `<span class="team-name">${t.name}</span>
-                      <span class="team-record">(${t.wins}-${t.losses}${t.ties > 0 ? '-' + t.ties : ''})</span>
-                      <span class="team-points">${t.points.toFixed(1)}</span>`;
+                      <div class="team-stats">
+                        <span class="team-record">(${t.wins}-${t.losses}${t.ties > 0 ? '-' + t.ties : ''})</span>
+                        <span class="team-points">${t.points.toFixed(1)}</span>
+                      </div>`;
       list.appendChild(li);
     });
 
