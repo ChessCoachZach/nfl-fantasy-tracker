@@ -57,7 +57,7 @@ function buildLeaderboard(scores) {
 
     const teamScores = teams.map(team => {
       const t = scores[team] || { points: 0, wins: 0, losses: 0, ties: 0 };
-      total += t.points + 0.5 * t.ties; // include ties in points
+      total += t.points + 0.5 * t.ties; // Score = team points + 0.5 for a tie
       totalWins += t.wins;
       totalLosses += t.losses;
       totalTies += t.ties;
@@ -85,27 +85,37 @@ function buildLeaderboard(scores) {
 
   const container = document.getElementById("players");
   container.innerHTML = "";
+  
+  // Logic to handle tied ranks
+  let lastScore = -1;
+  let currentRank = 0;
 
   leaderboard.forEach((entry, index) => {
+    // If current player's score is different from the previous, update the rank
+    if (entry.total !== lastScore) {
+      currentRank = index + 1;
+    }
+    lastScore = entry.total; // Update the last score for the next check
+
     const card = document.createElement("div");
     card.className = "player-card";
 
-    // Highlight top player
-    if(index === 0) {
+    // Highlight all players tied for first place
+    if(currentRank === 1) {
       card.classList.add("top-player");
     }
 
     // Player total points and combined record (Wins-Losses-Ties)
     const header = document.createElement("div");
     header.className = "player-header";
-    header.innerHTML = `<span>#${index + 1} ${entry.player}</span>
+    header.innerHTML = `<span>#${currentRank} ${entry.player}</span>
                         <span>${entry.total.toFixed(1)} pts • Total Record: ${entry.totalWins}-${entry.totalLosses}-${entry.totalTies}</span>`;
     card.appendChild(header);
 
-    // List each team with points and record
+    // List each team with points and record, sorted by points
     const list = document.createElement("ul");
     list.className = "team-list";
-    entry.teamScores.forEach(t => {
+    entry.teamScores.sort((a, b) => b.points - a.points).forEach(t => {
       const li = document.createElement("li");
       li.innerHTML = `<span class="team-name">${t.name}</span>
                       <span class="team-record">(${t.wins}-${t.losses}${t.ties > 0 ? '-' + t.ties : ''})</span>
